@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.QuizApp.Persistence.User;
 import com.QuizApp.Persistence.Users;
 import com.QuizApp.Persistence.question;
+import com.QuizApp.Persistence.teacher;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -23,6 +24,7 @@ public class quizServicesImpl implements IQuizServices{
 	String CollectionName="saison";
 	String season="2021-2022"; // update by superAdmin when season end ,usually on September
 	String userCollection ="users";
+	String teacherCollection ="teacher";
 	String statisticCollection="statistics";
 	
 	public String getSeason() {
@@ -46,7 +48,7 @@ public class quizServicesImpl implements IQuizServices{
 			//batch.update(sfRef, "score", score);
 			return true;
 		}catch(Exception e) {
-			System.out.println("something went wrong "+e);
+			System.out.println("something went wrong in upDateScore"+e);
 			return false;
 		}
 	}
@@ -62,6 +64,7 @@ public class quizServicesImpl implements IQuizServices{
 					  ListSubCollectionToString.add(collRef.getId());
 				}
 		} catch (Exception e) {
+			System.out.println("something went wrong in getExamensList"+e);
 			e.printStackTrace();
 		}
 		return ListSubCollectionToString;
@@ -89,7 +92,7 @@ public class quizServicesImpl implements IQuizServices{
 				}
 			}			
 		}catch(Exception e) {
-			System.out.println(e);
+			System.out.println("soemthing went wrong in getListQuestion"+e);
 		}
 		return questionList;
 	}
@@ -115,7 +118,7 @@ public class quizServicesImpl implements IQuizServices{
 			  return users;
 			}
 		}catch(Exception e) {
-			System.out.println("something went wrong "+e);
+			System.out.println("something went wrong in userIsExist"+e);
 			users = new Users("null","null",-1);
 			return users;
 		}
@@ -169,7 +172,7 @@ public class quizServicesImpl implements IQuizServices{
 			System.out.println("user added successfelly ...");
 			return true;
 		}catch(Exception e){
-			System.out.println(e);
+			System.out.println("something went wrong in addUser"+e);
 			return false;
 		}
 	}
@@ -204,10 +207,11 @@ public class quizServicesImpl implements IQuizServices{
 				_setNumberOfExamsInTrim.put("numberOfExams",getNumberOfExamsInTrim(trim)+1);
 				firestore.collection(statisticCollection).document(trim).set(_setNumberOfExamsInTrim);
 			}else {
-				System.out.println("soemthing went wrong ?");
+				System.out.println("soemthing went wrong  in addQuestion ....");
 			}
 			return true;
 		}catch(Exception e){
+			System.out.println("soemthing went wrong  in addQuestion ...."+e);
 			return false;
 		}
 	}
@@ -279,7 +283,7 @@ public class quizServicesImpl implements IQuizServices{
 			return  i;
 			
 		}catch(Exception e){
-			System.out.println("something went wrong ..."+e);
+			System.out.println("something went wrong in saveExam..."+e);
 			return -1;
 		}
 	}
@@ -300,7 +304,6 @@ public class quizServicesImpl implements IQuizServices{
 					 if (trim.equals("third_trim")) { //thirdTrim
 						 parametre="score_third_trim";	 
 					 }
-					 System.out.println("we are here4");
 				}
 			}
 			
@@ -352,8 +355,101 @@ public class quizServicesImpl implements IQuizServices{
 				return 0;
 			}
 		}catch(Exception e) {
-			System.out.println("something went wrong in getScoreTrim "+e);
+			System.out.println("something went wrong in getExamNumberOfTrim "+e);
 			return -1;
 		}
 	}
+
+	public boolean addNewTeacher(teacher _teacher) {
+		try {
+			Firestore firestore = FirestoreClient.getFirestore(); // must be in a function
+			Map<String,Object> teacherInfoMap = new HashMap<String, Object>(); // create a Map
+			System.out.println("teacher number "+_teacher.getPhoneNumber());
+			teacherInfoMap.put("firstName",_teacher.getFirstName());
+			teacherInfoMap.put("lastName",_teacher.getLastName());
+			teacherInfoMap.put("module",_teacher.getModule());
+			teacherInfoMap.put("password",_teacher.getPassword());
+			teacherInfoMap.put("isActivated",false);
+			firestore.collection(teacherCollection).document(_teacher.getPhoneNumber()).set(teacherInfoMap);
+			System.out.println("Teacher added successfully");
+			return true;
+		}catch(Exception e) {
+			System.out.println("something went wrong in addNewTeacher "+e);
+			return false;
+		}
+	}
+
+	public String isNumberTeacherExist(String teacherNumber) {
+		try {
+			Firestore firestore = FirestoreClient.getFirestore(); // must be in a function
+			DocumentReference documentReference=firestore.collection(teacherCollection).document(teacherNumber);
+			ApiFuture<DocumentSnapshot> apiFuture = documentReference.get();
+			DocumentSnapshot document = apiFuture.get();
+			if(document.exists()) {
+				// user exist 
+				return "isExist";
+			}else {
+				return "notExist";
+			}
+		}catch(Exception e) {
+			System.out.println("something went wrong in isNumberTeacherExist "+e);
+			return "_error";
+		}
+		
+	}
+	
+	public teacher teacherLogin(String phoneNumber,String password) {
+		try {
+			Firestore firestore = FirestoreClient.getFirestore(); // must be in a function
+			DocumentReference documentReference=firestore.collection(teacherCollection).document(phoneNumber);
+			ApiFuture<DocumentSnapshot> apiFuture = documentReference.get();
+			DocumentSnapshot document = apiFuture.get();
+			if(document.exists()) {
+				// user exist 
+				String _password= document.getData().get("password").toString();
+				if(password.equals(_password)) {
+					// phone number and password match, so the user is really exist but still dont know if his account is activated or not
+					
+					teacher _teacher = new teacher(); 
+						String firstName = document.getData().get("firstName").toString();
+						String lastName = document.getData().get("lastName").toString();	
+						String isActivated = document.getData().get("isActivated").toString();
+						_teacher.setPhoneNumber(phoneNumber);
+						_teacher.setFirstName(firstName);
+						_teacher.setLastName(lastName);
+						// check if the user account is activated or not 
+						if(isActivated.equals("true")) {
+							_teacher.setActivated(true);
+						}else {
+							_teacher.setActivated(false);
+						}
+					
+					return _teacher; // account exist, you have to check if its activated or not (check it in the front-end)
+			}else {
+				// wrong passwrod
+				teacher _teacherWrongPassword = new teacher();
+				_teacherWrongPassword.setFirstName("_");
+				_teacherWrongPassword.setLastName("_");
+				_teacherWrongPassword.setActivated(false);
+				return _teacherWrongPassword;
+			}	
+			}else {
+				// phone number doe's not exist
+				teacher _teacherWrongPhoneNumber = new teacher();
+				_teacherWrongPhoneNumber.setFirstName("/");
+				_teacherWrongPhoneNumber.setLastName("/");
+				_teacherWrongPhoneNumber.setActivated(false);
+				return _teacherWrongPhoneNumber; // acount dont exist
+			}
+		}catch(Exception e) {
+			System.out.println("something went wrong in teacherLogin "+e);
+			teacher _teacherWrong= new teacher();
+			_teacherWrong.setFirstName("?");
+			_teacherWrong.setLastName("?");
+			_teacherWrong.setActivated(false);
+			return _teacherWrong; // something went wrong 
+		}
+	}
+	
+	
 }

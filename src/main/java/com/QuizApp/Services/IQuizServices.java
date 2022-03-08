@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.QuizApp.Persistence.Users;
 import com.QuizApp.Persistence.question;
+import com.QuizApp.Persistence.teacher;
 
 @Repository
 public interface IQuizServices {
@@ -22,4 +23,7 @@ public interface IQuizServices {
 	int getNumberOfExamsInTrim(String trim);
 	int getScoreOfTrim(String userID,String trim);
 	int getExamNumberOfTrim(String userID,String trim);
+	boolean addNewTeacher(teacher _teacher);
+	String isNumberTeacherExist(String teacherNumber);
+	teacher teacherLogin(String phoneNumber,String password);
 }

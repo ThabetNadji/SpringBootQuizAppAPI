@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.QuizApp.Persistence.Users;
+import com.QuizApp.Persistence.credentialTeacherLogin;
 import com.QuizApp.Persistence.question;
+import com.QuizApp.Persistence.teacher;
 import com.QuizApp.Services.IQuizServices;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -119,5 +121,27 @@ public class quizController {
 	public int getScoreOfTrim(@PathVariable String userID,@PathVariable String trim) {
 		System.out.println("getScoreTrim process ...");
 		return iQuizServices.getScoreOfTrim(userID,trim);
+	}
+	
+	// addNewTeacher -> for teacher, to new one 
+	@PostMapping("/addNewTeacher") 
+	public boolean addNewTeacher(@RequestBody teacher _teacher) {
+		System.out.println("addNewTeacher ...");
+		return iQuizServices.addNewTeacher(_teacher);
+	}
+	
+	// verified is the number that teacher try to register with, is already exist or not  -> for teacher 
+	@GetMapping("/isNumberTeacherExist/{teacherNumber}") 
+	public String isNumberTeacherExist(@PathVariable String teacherNumber) {
+		System.out.println("isNumberTeacherExist ...");
+		return iQuizServices.isNumberTeacherExist(teacherNumber);
+	}
+	
+	// teacher login 
+	@PostMapping("/teacherLogin")
+	public teacher teacherLogin(@RequestBody credentialTeacherLogin _credentialTeacherLogin) {
+		System.out.println("teacherLogin ...");
+	    System.out.println("-> "+iQuizServices.teacherLogin(_credentialTeacherLogin.getPhoneNumber(),_credentialTeacherLogin.getPassword()));
+		return iQuizServices.teacherLogin(_credentialTeacherLogin.getPhoneNumber(),_credentialTeacherLogin.getPassword());
 	}
 }
