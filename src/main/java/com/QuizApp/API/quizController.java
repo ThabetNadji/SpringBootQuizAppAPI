@@ -16,8 +16,8 @@ import com.QuizApp.Persistence.question;
 import com.QuizApp.Persistence.teacher;
 import com.QuizApp.Services.IQuizServices;
 
-@CrossOrigin(origins = "https://myeduappse.web.app")
-//@CrossOrigin(origins = "http://localhost:4200")//https://myeduappse.web.app/
+//@CrossOrigin(origins = "https://myeduappse.web.app")
+@CrossOrigin(origins = "http://localhost:4200")//https://myeduappse.web.app/
 @RestController
 public class quizController {
 	
