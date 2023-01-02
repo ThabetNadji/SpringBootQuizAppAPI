@@ -255,7 +255,7 @@ public class quizServicesImpl implements IQuizServices{
 						GlobalExamScore.put("score_third_trim",getScoreOfTrim(userID,"third_trim") + score); // 1 step of update global score in third trimester
 						firestore.collection(userCollection).document(userID).update(GlobalExamScore); //  2 step of update global score in first trimester
 						//
-						examNumberOfTrim.put("score_third_trim",getExamNumberOfTrim(userID,"third_trim") + 1); // 1 step of update nbr exam 3 in third trimester
+						examNumberOfTrim.put("number_exam_third_trim",getExamNumberOfTrim(userID,"third_trim") + 1); // 1 step of update nbr exam 3 in third trimester
 						firestore.collection(userCollection).document(userID).update(examNumberOfTrim); //  2 step of update nbr exam 3 in third trimester
 						System.out.println("exam saved successfully ...");
 						return true;
@@ -311,6 +311,8 @@ public class quizServicesImpl implements IQuizServices{
 			DocumentSnapshot document = apiFuture.get();
 			if(document.exists()) {
 				String obj= document.getData().get(parametre).toString(); // <-- something went wrong here ?
+				System.out.println("score of this trim is equal to : ");
+				System.out.println(obj);
 			    int scoreOfTrim= Integer.parseInt(obj);
 				return  scoreOfTrim;
 			}else {
