@@ -26,4 +26,7 @@ public interface IQuizServices {
 	boolean addNewTeacher(teacher _teacher);
 	String isNumberTeacherExist(String teacherNumber);
 	teacher teacherLogin(String phoneNumber,String password);
+	int getUserCoins(String userID);
+	boolean setUserCoins(String userID, int coins);
+	
 }

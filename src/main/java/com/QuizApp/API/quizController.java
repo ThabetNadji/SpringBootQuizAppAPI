@@ -124,6 +124,20 @@ public class quizController {
 		return iQuizServices.getScoreOfTrim(userID,trim);
 	}
 	
+	// new function1 getUserCoins 
+	@GetMapping("/getUserCoins/{userID}") 
+	public int getUserCoins(@PathVariable String userID) {
+		System.out.println("getUserCoins process ...");
+		return iQuizServices.getUserCoins(userID);
+	}
+	
+	// new function2 setUserCoins
+	@GetMapping("/setUserCoins/{userID}/{coins}") 
+	public boolean setUserCoins(@PathVariable String userID,@PathVariable int coins) {
+		System.out.println("setUserCoins process ...");
+		return iQuizServices.setUserCoins(userID,coins);
+	}
+	
 	// addNewTeacher -> for teacher, to new one 
 	@PostMapping("/addNewTeacher") 
 	public boolean addNewTeacher(@RequestBody teacher _teacher) {

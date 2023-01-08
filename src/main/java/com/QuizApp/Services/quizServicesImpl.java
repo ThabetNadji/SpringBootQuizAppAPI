@@ -42,7 +42,7 @@ public class quizServicesImpl implements IQuizServices{
 	public boolean upDateScore(String userID,int score) {
 		try {
 			Firestore firestore = FirestoreClient.getFirestore(); // must be in a function
-			WriteBatch batch = firestore.batch();
+			//WriteBatch batch = firestore.batch();
 			DocumentReference documentReference=firestore.collection(userCollection).document(userID);
 			documentReference.update("score",score); // <-- its came from here 
 			//batch.update(sfRef, "score", score);
@@ -109,17 +109,17 @@ public class quizServicesImpl implements IQuizServices{
 				User user=document.toObject(User.class);
 				System.out.println("Document data: " + user.getScore());
 				System.out.println("userName: "+user.getUserName());
-				users = new Users(document.getId(),user.getUserName(),user.getScore());
+				users = new Users(document.getId(),user.getUserName(),user.getScore(),user.getCoins());
 				return users;
 			  
 			} else {
 			    System.out.println("No such document!");
-				users = new Users("nullID","nullName",-1);
+				users = new Users("nullID","nullName",-1,-1);
 			  return users;
 			}
 		}catch(Exception e) {
 			System.out.println("something went wrong in userIsExist"+e);
-			users = new Users("null","null",-1);
+			users = new Users("null","null",-1,-1);
 			return users;
 		}
 	}
@@ -168,6 +168,7 @@ public class quizServicesImpl implements IQuizServices{
 			userInfoMap.put("number_exam_second_trim",0); // nbr exam 2
 			userInfoMap.put("score_third_trim",0); // score trim 3
 			userInfoMap.put("number_exam_third_trim",0); // nbr exam 3
+			userInfoMap.put("coins",10); // nbr exam 3
 			firestore.collection(userCollection).document(userID).set(userInfoMap);
 			System.out.println("user added successfelly ...");
 			return true;
@@ -450,6 +451,55 @@ public class quizServicesImpl implements IQuizServices{
 			_teacherWrong.setLastName("?");
 			_teacherWrong.setActivated(false);
 			return _teacherWrong; // something went wrong 
+		}
+	}
+
+	// new
+	public int getUserCoins(String userID) {
+		Firestore firestore = FirestoreClient.getFirestore(); // must be in a function
+		DocumentReference documentReference=firestore.collection(userCollection).document(userID);
+		try {
+			ApiFuture<DocumentSnapshot> apiFuture = documentReference.get();
+			DocumentSnapshot document = apiFuture.get();
+			if(document.exists()) {
+				String coins= document.getData().get("coins").toString(); 
+				System.out.println("coins of this user is equal to : ");
+				System.out.println(coins);
+			    int userCoins= Integer.parseInt(coins);
+				return  userCoins;
+			}else {
+				System.out.println("getUserCoins -> document does't exist ...");
+				return 0;
+			}
+			
+		}catch(Exception e) {
+			System.out.println("getUserCoins -> something went wrong "+e);
+		}
+		return 0;
+	}
+
+	// new
+	public boolean setUserCoins(String userID, int coins) {
+		int actualCoins=getUserCoins(userID);
+		try {
+			Firestore firestore = FirestoreClient.getFirestore(); // must be in a function
+			DocumentReference documentReference=firestore.collection(userCollection).document(userID);
+			if(coins>0) { // -> its mean that i will add new coins 
+				documentReference.update("coins",actualCoins+coins); 
+				return true;	
+			}else { // -> its mean that i will reduce the number of coins
+				if(actualCoins>=3) {
+					documentReference.update("coins",actualCoins+coins); 
+					return true;
+				}else {
+					System.out.println("number of coins less than 3");
+					return false;
+				}
+				
+			}
+		}catch(Exception e) {
+			System.out.println("something went wrong in upDateScore"+e);
+			return false;
 		}
 	}
 	
