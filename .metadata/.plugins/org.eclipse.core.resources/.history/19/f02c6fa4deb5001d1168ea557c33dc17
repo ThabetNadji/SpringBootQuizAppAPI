@@ -1,0 +1,7 @@
+
+public class Mymain {
+
+	public static void Main(String args) {
+		System.err.println("hello world");
+	}
+}
