@@ -1,5 +1,5 @@
 FROM eclipse-temurin:17-jdk-alpine
 VOLUME /tmp
-COPY target/*.jar SpringQuizAppAPI-1.0.2.jar
-ENTRYPOINT ["java","-jar","/SpringQuizAppAPI-1.0.2.jar"]
+COPY target/*.jar QuizApp-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java","-jar","/QuizApp-0.0.1-SNAPSHOT.jar"]
 EXPOSE 8080
